@@ -8,6 +8,7 @@ const bcryptjs = require("bcryptjs");
 const saltRounds = 10;
 
 const User = require("../models/User.model");
+const { checkAnon, checkLogin } = require("../middlewares/auth.middleware");
 
 // GET route ==> to display the signup form to users
 router.get("/signup", (req, res) => res.render("auth/signup"));
@@ -73,7 +74,7 @@ router.post("/signup", (req, res, next) => {
 router.get("/login", (req, res) => res.render("auth/login"));
 
 // POST login route ==> to process form data
-router.post("/login", (req, res, next) => {
+router.post("/login", checkAnon, (req, res, next) => {
   console.log("SESSION =====> ", req.session);
   const { email, password } = req.body;
 
@@ -105,6 +106,7 @@ router.post("/login", (req, res, next) => {
         // res.render('users/user-profile', { user });
 
         //******* SAVE THE USER IN THE SESSION ********//
+        req.session.currentUserId = user._id;
         req.session.currentUser = user;
         res.redirect("/userProfile");
       } else {
